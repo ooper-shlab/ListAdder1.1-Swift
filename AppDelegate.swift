@@ -62,6 +62,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // The following is required because the compiler won't automatically
     // synthesise properties that are created via property conformance.
     
-    var window: UIWindow!
+    var window: UIWindow?
     
 }

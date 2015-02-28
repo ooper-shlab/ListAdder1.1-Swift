@@ -83,7 +83,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     // Set up some private properties.
     override func awakeFromNib() {
         
-        self.numbers = self.dynamicType.defaultNumbers().mutableCopy() as NSMutableArray
+        self.numbers = self.dynamicType.defaultNumbers().mutableCopy() as! NSMutableArray
         assert(self.numbers != nil)
         
         self.queue = NSOperationQueue()
@@ -207,23 +207,23 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         case kListAdderSectionIndexTotal:
             if self.recalculating {
                 
-                cell = self.tableView.dequeueReusableCellWithIdentifier("totalBusy") as UITableViewCell!
+                cell = self.tableView.dequeueReusableCellWithIdentifier("totalBusy") as! UITableViewCell!
                 assert(cell != nil)
                 
-                let activityView = cell.editingAccessoryView as UIActivityIndicatorView
+                let activityView = cell.editingAccessoryView as! UIActivityIndicatorView
                 activityView.startAnimating()
             } else {
-                cell = self.tableView.dequeueReusableCellWithIdentifier("total") as UITableViewCell!
+                cell = self.tableView.dequeueReusableCellWithIdentifier("total") as! UITableViewCell!
                 assert(cell != nil)
                 cell.detailTextLabel?.text = self.formattedTotal
             }
         case kListAdderSectionIndexAddNumber:
-            cell = self.tableView.dequeueReusableCellWithIdentifier("add") as UITableViewCell!
+            cell = self.tableView.dequeueReusableCellWithIdentifier("add") as! UITableViewCell!
             assert(cell != nil)
         case kListAdderSectionIndexNumbers:
-            cell = self.tableView.dequeueReusableCellWithIdentifier("number") as UITableViewCell!
+            cell = self.tableView.dequeueReusableCellWithIdentifier("number") as! UITableViewCell!
             assert(cell != nil)
-            cell.textLabel?.text = NSNumberFormatter.localizedStringFromNumber(self.numbers[indexPath.row] as NSNumber, numberStyle: .DecimalStyle)
+            cell.textLabel?.text = NSNumberFormatter.localizedStringFromNumber(self.numbers[indexPath.row] as! NSNumber, numberStyle: .DecimalStyle)
         default:
             assertionFailure(__FUNCTION__)
         }
@@ -332,9 +332,9 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     
     private func prepareForNumberPickerSegue(segue: UIStoryboardSegue) {
         
-        let nav = segue.destinationViewController as UINavigationController
+        let nav = segue.destinationViewController as! UINavigationController
         
-        let numberPicker = nav.viewControllers[0] as NumberPickerController
+        let numberPicker = nav.viewControllers[0] as! NumberPickerController
         
         numberPicker.delegate = self
     }
@@ -371,9 +371,9 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     
     private func prepareForOptionsSegue(segue: UIStoryboardSegue) {
         
-        let nav = segue.destinationViewController as UINavigationController
+        let nav = segue.destinationViewController as! UINavigationController
         
-        let options = nav.viewControllers[0] as OptionsController
+        let options = nav.viewControllers[0] as! OptionsController
         
         options.delegate = self
     }
@@ -415,7 +415,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             
             self.recalculating = true
             
-            let immutableNumbers = self.numbers.copy() as NSArray
+            let immutableNumbers = self.numbers.copy() as! NSArray
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
                 self.threadRecalculateNumbers(immutableNumbers)
             }
@@ -431,7 +431,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             
             var total = 0
             let numberCount = immutableNumbers.count
-            for numberObj in immutableNumbers as [NSNumber] {
+            for numberObj in immutableNumbers as! [NSNumber] {
                 
                 // Sleep for a while.  This makes it easiest to test various problematic cases.
                 
@@ -473,7 +473,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             assertionFailure(__FUNCTION__)
             
             var total = 0
-            for numberObj in self.numbers as NSArray as [NSNumber] {
+            for numberObj in self.numbers as NSArray as! [NSNumber] {
                 
                 // Sleep for a while.  This makes it easiest to test various problematic cases.
                 
@@ -501,7 +501,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             assertionFailure(__FUNCTION__)
             
             var total = 0
-            for numberObj in self.numbers as NSArray as [NSNumber] {
+            for numberObj in self.numbers as NSArray as! [NSNumber] {
                 
                 // Sleep for a while.  This makes it easiest to test various problematic cases.
                 
@@ -564,7 +564,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             
             // can be running on any thread
             assert(keyPath == "isFinished")
-            let op = object as AdderOperation
+            let op = object as! AdderOperation
             assert(op.finished)
             
             fputs(String(format: "%c %3ld finished\n", CharForCurrentThread(), op.sequenceNumber), stderr)
@@ -587,7 +587,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             
             // can be running on any thread
             assert(keyPath == "isExecuting")
-            let op = object as AdderOperation
+            let op = object as! AdderOperation
             if op.executing {
                 fputs(String(format: "%c %3ld executing\n", CharForCurrentThread(), op.sequenceNumber), stderr)
             } else {
@@ -692,7 +692,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             self.numbers.removeAllObjects()
             self.numbers.addObject(41)
         } else {
-            self.numbers.replaceObjectsInRange(NSMakeRange(0, self.numbers.count), withObjectsFromArray: self.dynamicType.defaultNumbers())
+            self.numbers.replaceObjectsInRange(NSMakeRange(0, self.numbers.count), withObjectsFromArray: self.dynamicType.defaultNumbers() as [AnyObject])
         }
         self.syncLeftBarButtonTitle()
         if self.isViewLoaded() {

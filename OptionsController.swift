@@ -99,7 +99,7 @@ class OptionsController: UITableViewController {
         
         assert(tv === self.tableView)
         
-        let cell = self.tableView.cellForRowAtIndexPath(indexPath)! as OptionCell
+        let cell = self.tableView.cellForRowAtIndexPath(indexPath)! as! OptionCell
         
         let optionEnabled = !self.currentState[cell.optionKey]!
         self.currentState[cell.optionKey] = optionEnabled

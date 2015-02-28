@@ -90,7 +90,7 @@ class NumberPickerController: UITableViewController {
         
         assert(tv === self.tableView)
         
-        let cell = self.tableView.cellForRowAtIndexPath(indexPath) as NumberCell
+        let cell = self.tableView.cellForRowAtIndexPath(indexPath) as! NumberCell
         
         self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
         

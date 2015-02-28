@@ -123,7 +123,7 @@ class AdderOperation: NSOperation {
         if NSUserDefaults.standardUserDefaults().boolForKey("retainNotCopy") {
             self.numbers = numbers
         } else {
-            self.numbers = numbers.copy() as NSArray
+            self.numbers = numbers.copy() as! NSArray
         }
         super.init()
         
@@ -153,8 +153,8 @@ class AdderOperation: NSOperation {
         
         assertionFailure(__FUNCTION__)
         
+        self.numbers = numbers.copy() as! NSArray
         super.init()
-        self.numbers = numbers.copy() as NSArray
     }
     
     deinit {
@@ -192,7 +192,7 @@ class AdderOperation: NSOperation {
         // Do the heavy lifting (-:
         
         var localTotal: Int = 0
-        for number in numbers as [NSNumber] {
+        for number in numbers as! [NSNumber] {
             
             // Check for cancellation.
             
@@ -233,7 +233,7 @@ class AdderOperation: NSOperation {
         
         var total = 0
         let numberCount = self.numbers.count
-        for numberObj in self.numbers as [NSNumber] {
+        for numberObj in self.numbers as! [NSNumber] {
             
             // Check for cancellation.
             
