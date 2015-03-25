@@ -250,7 +250,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
                 result = .Delete
             }
         default:
-            assertionFailure(__FUNCTION__)
+            preconditionFailure(__FUNCTION__)
         }
         return result
     }

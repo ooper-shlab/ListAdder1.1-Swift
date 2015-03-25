@@ -2,7 +2,7 @@
 
 Translated by OOPer in cooperation with shlab.jp, on 2015/2/8.
 
-Adapted to Swift 1.2 beta2 on 2015/3/1.
+Adapted to Swift 1.2 beta4 on 2015/3/25.
 
 Based on
 <https://developer.apple.com/library/ios/samplecode/ListAdder/Introduction/Intro.html#//apple_ref/doc/uid/DTS40010275>
@@ -15,5 +15,5 @@ You should not contact to Apple or SHLab(jp) about any faults caused by my trans
 ===========================================================================
 BUILD REQUIREMENTS:
 
-Xcode 6.3 beta2, iOS SDK 8.3
+Xcode 6.3 beta4, iOS SDK 8.3
 
