@@ -178,7 +178,7 @@ class AdderOperation: NSOperation {
         // it after they've queued the operation (something they shouldn't be doing,
         // but hey, we're cautious), we always see a consistent value.
         
-        var localInterNumberDelay: NSTimeInterval = self.interNumberDelay
+        let localInterNumberDelay: NSTimeInterval = self.interNumberDelay
         
         // Set up the formatter.  This is a private property that's only accessed by
         // the operation thread, so we don't have to worry about synchronising access to it.
@@ -232,7 +232,6 @@ class AdderOperation: NSOperation {
         // Do the heavy lifting (-:
         
         var total = 0
-        let numberCount = self.numbers.count
         for numberObj in self.numbers as! [NSNumber] {
             
             // Check for cancellation.

@@ -92,7 +92,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         // Observe .recalculating to trigger reloads of the cell in the first
         // section (kListAdderSectionIndexTotal).
         
-        self.addObserver(self, forKeyPath: "recalculating", options: nil, context: recalculatingContext)
+        self.addObserver(self, forKeyPath: "recalculating", options: [], context: recalculatingContext)
     }
     
     // This is the root view controller of our application, so it can never be
@@ -207,21 +207,21 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         case kListAdderSectionIndexTotal:
             if self.recalculating {
                 
-                cell = self.tableView.dequeueReusableCellWithIdentifier("totalBusy") as! UITableViewCell!
+                cell = self.tableView.dequeueReusableCellWithIdentifier("totalBusy") as UITableViewCell!
                 assert(cell != nil)
                 
                 let activityView = cell.editingAccessoryView as! UIActivityIndicatorView
                 activityView.startAnimating()
             } else {
-                cell = self.tableView.dequeueReusableCellWithIdentifier("total") as! UITableViewCell!
+                cell = self.tableView.dequeueReusableCellWithIdentifier("total") as UITableViewCell!
                 assert(cell != nil)
                 cell.detailTextLabel?.text = self.formattedTotal
             }
         case kListAdderSectionIndexAddNumber:
-            cell = self.tableView.dequeueReusableCellWithIdentifier("add") as! UITableViewCell!
+            cell = self.tableView.dequeueReusableCellWithIdentifier("add") as UITableViewCell!
             assert(cell != nil)
         case kListAdderSectionIndexNumbers:
-            cell = self.tableView.dequeueReusableCellWithIdentifier("number") as! UITableViewCell!
+            cell = self.tableView.dequeueReusableCellWithIdentifier("number") as UITableViewCell!
             assert(cell != nil)
             cell.textLabel?.text = NSNumberFormatter.localizedStringFromNumber(self.numbers[indexPath.row] as! NSNumber, numberStyle: .DecimalStyle)
         default:
@@ -430,7 +430,6 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             assert(!NSThread.isMainThread())
             
             var total = 0
-            let numberCount = immutableNumbers.count
             for numberObj in immutableNumbers as! [NSNumber] {
                 
                 // Sleep for a while.  This makes it easiest to test various problematic cases.
@@ -545,8 +544,8 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             self.inProgressAdder!.interNumberDelay = 0.2
         }
         
-        self.inProgressAdder!.addObserver(self, forKeyPath: "isFinished", options: nil, context: totalContext)
-        self.inProgressAdder!.addObserver(self, forKeyPath: "isExecuting", options: nil, context: queueContext)
+        self.inProgressAdder!.addObserver(self, forKeyPath: "isFinished", options: [], context: totalContext)
+        self.inProgressAdder!.addObserver(self, forKeyPath: "isExecuting", options: [], context: queueContext)
         
         fputs(String(format: "%c %3ld queuing\n", CharForCurrentThread(), self.inProgressAdder!.sequenceNumber), stderr)
         self.queue.addOperation(self.inProgressAdder!)
@@ -556,7 +555,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         self.recalculating = true
     }
     
-    override func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject : AnyObject], context: UnsafeMutablePointer<Void>) {
+    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [NSObject : AnyObject]?, context: UnsafeMutablePointer<Void>) {
         if context == totalContext {
             
             // If the operation has finished, call -adderOperationDone: on the main thread to deal
