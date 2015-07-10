@@ -109,7 +109,7 @@ class OptionsController: UITableViewController {
         self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
     
-    @IBAction func saveAction(AnyObject) {
+    @IBAction func saveAction(_: AnyObject) {
         
         // Commit the options to the user defaults.
         
@@ -127,7 +127,7 @@ class OptionsController: UITableViewController {
         strongDelegate?.didSaveOptions(self)
     }
     
-    @IBAction func cancelAction(AnyObject) {
+    @IBAction func cancelAction(_: AnyObject) {
         
         // Tell the delegate about the cancellation.
         

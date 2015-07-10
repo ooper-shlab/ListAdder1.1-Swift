@@ -381,12 +381,12 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     // Called when the user taps Save in the options view.  The options
     // view has already saved the options, so we have nothing to do other
     // than to tear down the view.
-    func didSaveOptions(OptionsController) {
+    func didSaveOptions(_: OptionsController) {
         self.dismissViewControllerAnimated(true, completion: nil)
     }
     
     // Called when the user taps Cancel in the options view.
-    func didCancelOptions(OptionsController) {
+    func didCancelOptions(_: OptionsController) {
         self.dismissViewControllerAnimated(true, completion: nil)
     }
     
@@ -555,7 +555,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         self.recalculating = true
     }
     
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [NSObject : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
         if context == totalContext {
             
             // If the operation has finished, call -adderOperationDone: on the main thread to deal
@@ -686,7 +686,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     // If we have lots of numbers, set the list to contain a sigle entry.  If we have
     // just one number, reset the list back to the defaults.  This allows us to easily
     // test cancellation and the discard of stale results.
-    @IBAction private func defaultsOrMinimumAction(AnyObject) {
+    @IBAction private func defaultsOrMinimumAction(_: AnyObject) {
         if self.numbers.count > 1 {
             self.numbers.removeAllObjects()
             self.numbers.addObject(41)

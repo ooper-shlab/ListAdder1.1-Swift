@@ -97,7 +97,7 @@ class NumberPickerController: UITableViewController {
         self.didChooseNumber(cell.number)
     }
     
-    @IBAction func cancelAction(AnyObject) {
+    @IBAction func cancelAction(_: AnyObject) {
         self.didChooseNumber(nil)
     }
     
