@@ -151,7 +151,7 @@ class AdderOperation: NSOperation {
         // IMPORTANT: This is method is not actually used.  It is here because it's a code
         // snippet in the technote, and i wanted to make sure it compiles.
         
-        assertionFailure(__FUNCTION__)
+        assertionFailure(#function)
         
         self.numbers = numbers.copy() as! NSArray
         super.init()
@@ -223,7 +223,7 @@ class AdderOperation: NSOperation {
         // IMPORTANT: This is method is not actually used.  It is here because it's a code
         // snippet in the technote, and i wanted to make sure it compiles.
         
-        assertionFailure(__FUNCTION__)
+        assertionFailure(#function)
         
         // This method is called by a thread that's set up for us by the NSOperationQueue.
         

@@ -225,7 +225,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             assert(cell != nil)
             cell.textLabel?.text = NSNumberFormatter.localizedStringFromNumber(self.numbers[indexPath.row] as! NSNumber, numberStyle: .DecimalStyle)
         default:
-            assertionFailure(__FUNCTION__)
+            assertionFailure(#function)
         }
         
         return cell
@@ -250,7 +250,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
                 result = .Delete
             }
         default:
-            preconditionFailure(__FUNCTION__)
+            preconditionFailure(#function)
         }
         return result
     }
@@ -264,7 +264,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         
         switch indexPath.section {
         case kListAdderSectionIndexTotal:
-            assertionFailure(__FUNCTION__)
+            assertionFailure(#function)
         case kListAdderSectionIndexAddNumber:
             assert(editingStyle == .Insert)
             
@@ -295,7 +295,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             
             self.recalculateTotal()
         default:
-            assertionFailure(__FUNCTION__)
+            assertionFailure(#function)
         }
     }
     
@@ -320,7 +320,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             // do nothing
             break
         default:
-            assertionFailure(__FUNCTION__)
+            assertionFailure(#function)
         }
     }
     
@@ -469,7 +469,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             // IMPORTANT: This method is not actually used.  It is here because it's a code
             // snippet in the technote, and i wanted to make sure it compiles.
             
-            assertionFailure(__FUNCTION__)
+            assertionFailure(#function)
             
             var total = 0
             for numberObj in self.numbers as NSArray as! [NSNumber] {
@@ -497,7 +497,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             // IMPORTANT: This method is not actually used.  It is here because it's a code
             // snippet in the technote, and i wanted to make sure it compiles.
             
-            assertionFailure(__FUNCTION__)
+            assertionFailure(#function)
             
             var total = 0
             for numberObj in self.numbers as NSArray as! [NSNumber] {
