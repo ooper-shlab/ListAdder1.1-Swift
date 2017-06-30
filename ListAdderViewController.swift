@@ -61,18 +61,18 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     
     // private properties
     
-    private var numbers: NSMutableArray!
-    private var queue: NSOperationQueue!
-    private lazy var queueContext: UnsafeMutablePointer<Void> = withUnsafeMutablePointer(&self.queue) {UnsafeMutablePointer($0)}
+    private var numbers: NSMutableArray! //### Still using NSMutableArray as to test retain options.
+    private var queue: OperationQueue!
+    private lazy var queueContext: UnsafeMutableRawPointer = withUnsafeMutablePointer(to: &self.queue) {UnsafeMutableRawPointer($0)}
     dynamic private var recalculating: Bool = false
-    private lazy var recalculatingContext: UnsafeMutablePointer<Void> = withUnsafeMutablePointer(&self.recalculating) {UnsafeMutablePointer($0)}
+    private lazy var recalculatingContext: UnsafeMutableRawPointer = withUnsafeMutablePointer(to: &self.recalculating) {UnsafeMutableRawPointer($0)}
     private var inProgressAdder: AdderOperation?
     private var formattedTotal: String?
-    private lazy var totalContext: UnsafeMutablePointer<Void> = withUnsafeMutablePointer(&self.formattedTotal) {UnsafeMutablePointer($0)}
+    private lazy var totalContext: UnsafeMutableRawPointer = withUnsafeMutablePointer(to: &self.formattedTotal) {UnsafeMutableRawPointer($0)}
     
     // Returns 'M' if we're running on the main thread, or 'S' otherwies.
     private final func CharForCurrentThread()->UInt32 {
-        return NSThread.isMainThread() ? UInt32("M") : UInt32("S")
+        return Thread.isMainThread ? UInt32("M") : UInt32("S")
     }
     
     // Returns the default numbers that we initialise the view with.
@@ -83,10 +83,10 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     // Set up some private properties.
     override func awakeFromNib() {
         
-        self.numbers = self.dynamicType.defaultNumbers().mutableCopy() as! NSMutableArray
+        self.numbers = type(of: self).defaultNumbers().mutableCopy() as! NSMutableArray
         assert(self.numbers != nil)
         
-        self.queue = NSOperationQueue()
+        self.queue = OperationQueue()
         assert(self.queue != nil)
         
         // Observe .recalculating to trigger reloads of the cell in the first
@@ -134,10 +134,10 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         
         // Configure our table view.
         
-        self.tableView.editing = true
+        self.tableView.isEditing = true
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         // When we come on screen, if we don't have a current value and we're not
@@ -149,7 +149,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         }
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender _: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender _: Any?) {
         
         // Dispatch to our various segue-specific methods.
         
@@ -169,26 +169,26 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     private final let kListAdderSectionIndexNumbers = 2
     private final let kListAdderSectionIndexCount = 3
     
-    override func numberOfSectionsInTableView(tv: UITableView) -> Int {
+    override func numberOfSections(in tv: UITableView) -> Int {
         assert(tv === self.tableView)
         return kListAdderSectionIndexCount
     }
     
-    override func tableView(tv: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tv: UITableView, numberOfRowsInSection section: Int) -> Int {
         assert(tv === self.tableView)
         assert(section < kListAdderSectionIndexCount)
         
         return (section == kListAdderSectionIndexNumbers) ? self.numbers.count : 1
     }
     
-    private func isValidIndexPath(indexPath: NSIndexPath?) -> Bool {
+    private func isValidIndexPath(_ indexPath: IndexPath?) -> Bool {
         return (indexPath != nil) &&
             ((indexPath!.section >= 0) && (indexPath!.section < kListAdderSectionIndexCount)) &&
             (indexPath!.row >= 0) &&
             (indexPath!.row < ((indexPath!.section == kListAdderSectionIndexNumbers) ? self.numbers.count : 1))
     }
     
-    override func tableView(tv: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    override func tableView(_ tv: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell: UITableViewCell!
         
         assert(tv === self.tableView)
@@ -207,23 +207,23 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         case kListAdderSectionIndexTotal:
             if self.recalculating {
                 
-                cell = self.tableView.dequeueReusableCellWithIdentifier("totalBusy") as UITableViewCell!
+                cell = self.tableView.dequeueReusableCell(withIdentifier: "totalBusy") as UITableViewCell!
                 assert(cell != nil)
                 
                 let activityView = cell.editingAccessoryView as! UIActivityIndicatorView
                 activityView.startAnimating()
             } else {
-                cell = self.tableView.dequeueReusableCellWithIdentifier("total") as UITableViewCell!
+                cell = self.tableView.dequeueReusableCell(withIdentifier: "total") as UITableViewCell!
                 assert(cell != nil)
                 cell.detailTextLabel?.text = self.formattedTotal
             }
         case kListAdderSectionIndexAddNumber:
-            cell = self.tableView.dequeueReusableCellWithIdentifier("add") as UITableViewCell!
+            cell = self.tableView.dequeueReusableCell(withIdentifier: "add") as UITableViewCell!
             assert(cell != nil)
         case kListAdderSectionIndexNumbers:
-            cell = self.tableView.dequeueReusableCellWithIdentifier("number") as UITableViewCell!
+            cell = self.tableView.dequeueReusableCell(withIdentifier: "number") as UITableViewCell!
             assert(cell != nil)
-            cell.textLabel?.text = NSNumberFormatter.localizedStringFromNumber(self.numbers[indexPath.row] as! NSNumber, numberStyle: .DecimalStyle)
+            cell.textLabel?.text = NumberFormatter.localizedString(from: self.numbers[indexPath.row] as! NSNumber, number: .decimal)
         default:
             assertionFailure(#function)
         }
@@ -231,7 +231,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         return cell
     }
     
-    override func tableView(tv: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
+    override func tableView(_ tv: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
         var result: UITableViewCellEditingStyle
         
         assert(tv === self.tableView)
@@ -239,15 +239,15 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         
         switch indexPath.section {
         case kListAdderSectionIndexTotal:
-            result = .None
+            result = .none
         case kListAdderSectionIndexAddNumber:
-            result = .Insert
+            result = .insert
         case kListAdderSectionIndexNumbers:
             // We don't allow the user to delete the last cell.
             if self.numbers.count == 1 {
-                result = .None
+                result = .none
             } else {
-                result = .Delete
+                result = .delete
             }
         default:
             preconditionFailure(#function)
@@ -258,7 +258,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     // I would like to suppress the delete confirmation button but I don't think there's a
     // supported way to do this.
     
-    override func tableView(tv: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tv: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         assert(tv === self.tableView)
         assert(self.isValidIndexPath(indexPath))
         
@@ -266,27 +266,27 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         case kListAdderSectionIndexTotal:
             assertionFailure(#function)
         case kListAdderSectionIndexAddNumber:
-            assert(editingStyle == .Insert)
+            assert(editingStyle == .insert)
             
             // The user has tapped on the plus button itself (as opposed to the body
             // of that cell).  Bring up the number picker.
             
             self.presentNumberPickerModally()
         case kListAdderSectionIndexNumbers:
-            assert(editingStyle == .Delete)
+            assert(editingStyle == .delete)
             assert(self.numbers.count != 0)      // because otherwise we'd have no delete button
             
             // Remove the row from our model and the table view.
             
-            self.numbers.removeObjectAtIndex(indexPath.row)
-            self.tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .None)
+            self.numbers.removeObject(at: indexPath.row)
+            self.tableView.deleteRows(at: [indexPath], with: .none)
             
             // If we've transitioned from 2 rows to 1 row, remove the delete button for the
             // remaining row; we don't want folks deleting that now, do we?  Also, set the
             // title of the left bar button to "Defaults" to reflect its updated function.
             
             if self.numbers.count == 1 {
-                self.tableView.reloadRowsAtIndexPaths([NSIndexPath(forRow: 0, inSection:kListAdderSectionIndexNumbers)], withRowAnimation: .None)
+                self.tableView.reloadRows(at: [IndexPath(row: 0, section:kListAdderSectionIndexNumbers)], with: .none)
                 
                 self.syncLeftBarButtonTitle()
             }
@@ -299,12 +299,12 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         }
     }
     
-    override func tableView(tv: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tv: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         assert(tv === self.tableView)
         assert(self.isValidIndexPath(indexPath))
         
-        self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        self.tableView.deselectRow(at: indexPath, animated: true)
         
         switch indexPath.section {
         case kListAdderSectionIndexTotal:
@@ -327,12 +327,12 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     //MARK: * Number picker management
     
     private func presentNumberPickerModally() {
-        self.performSegueWithIdentifier("numberPicker", sender: self)
+        self.performSegue(withIdentifier: "numberPicker", sender: self)
     }
     
-    private func prepareForNumberPickerSegue(segue: UIStoryboardSegue) {
+    private func prepareForNumberPickerSegue(_ segue: UIStoryboardSegue) {
         
-        let nav = segue.destinationViewController as! UINavigationController
+        let nav = segue.destination as! UINavigationController
         
         let numberPicker = nav.viewControllers[0] as! NumberPickerController
         
@@ -340,7 +340,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     }
     
     // Called by the number picker when the user chooses a number or taps cancel.
-    func numberPicker(controller: NumberPickerController, didChooseNumber number: NSNumber?) {
+    func numberPicker(_ controller: NumberPickerController, didChooseNumber number: NSNumber?) {
         
         // If it wasn't cancelled...
         
@@ -348,14 +348,14 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             
             // Add the number to our model and the table view.
             
-            self.numbers.addObject(number!)
-            self.tableView.insertRowsAtIndexPaths([NSIndexPath(forRow: self.numbers.count - 1, inSection: kListAdderSectionIndexNumbers)], withRowAnimation: .None)
+            self.numbers.add(number!)
+            self.tableView.insertRows(at: [IndexPath(row: self.numbers.count - 1, section: kListAdderSectionIndexNumbers)], with: .none)
             
             // If we've transitioned from 1 row to 2 rows, add the delete button back for
             // the first row.  Also change the left bar button item back to "Minimum".
             
             if self.numbers.count == 2 {
-                self.tableView.reloadRowsAtIndexPaths([NSIndexPath(forRow: 0, inSection: kListAdderSectionIndexNumbers)], withRowAnimation: .None)
+                self.tableView.reloadRows(at: [IndexPath(row: 0, section: kListAdderSectionIndexNumbers)], with: .none)
                 
                 self.syncLeftBarButtonTitle()
             }
@@ -364,14 +364,14 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             
             self.recalculateTotal()
         }
-        self.dismissViewControllerAnimated(true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
     }
     
     //MARK: * Options management
     
-    private func prepareForOptionsSegue(segue: UIStoryboardSegue) {
+    private func prepareForOptionsSegue(_ segue: UIStoryboardSegue) {
         
-        let nav = segue.destinationViewController as! UINavigationController
+        let nav = segue.destination as! UINavigationController
         
         let options = nav.viewControllers[0] as! OptionsController
         
@@ -382,19 +382,19 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     // view has already saved the options, so we have nothing to do other
     // than to tear down the view.
     func didSaveOptions(_: OptionsController) {
-        self.dismissViewControllerAnimated(true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
     }
     
     // Called when the user taps Cancel in the options view.
     func didCancelOptions(_: OptionsController) {
-        self.dismissViewControllerAnimated(true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
     }
     
     //MARK: * Async recalculation
     
     // Starts a recalculation using either the thread- or NSOperation-based code.
     private func recalculateTotal() {
-        if NSUserDefaults.standardUserDefaults().boolForKey("useThreadsDirectly") {
+        if UserDefaults.standard.bool(forKey: "useThreadsDirectly") {
             self.recalculateTotalUsingThread()
         } else {
             self.recalculateTotalUsingOperation()
@@ -405,10 +405,10 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     
     // Starts a recalculation using a thread.
     private func recalculateTotalUsingThread() {
-        if NSUserDefaults.standardUserDefaults().boolForKey("retainNotCopy") {
+        if UserDefaults.standard.bool(forKey: "retainNotCopy") {
             self.recalculating = true
             
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+            DispatchQueue.global(qos: .default).async {
                 self.threadRecalculateNumbers(self.numbers)
             }
         } else {
@@ -416,7 +416,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             self.recalculating = true
             
             let immutableNumbers = self.numbers.copy() as! NSArray
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+            DispatchQueue.global(qos: .default).async {
                 self.threadRecalculateNumbers(immutableNumbers)
             }
         }
@@ -424,29 +424,29 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     
     // Does the actual recalculation when we're in threaded mode.  Always
     // called on a secondary thread.
-    private func threadRecalculateNumbers(immutableNumbers: NSArray) {
+    private func threadRecalculateNumbers(_ immutableNumbers: NSArray) {
         autoreleasepool  {
             
-            assert(!NSThread.isMainThread())
+            assert(!Thread.isMainThread)
             
             var total = 0
             for numberObj in immutableNumbers as! [NSNumber] {
                 
                 // Sleep for a while.  This makes it easiest to test various problematic cases.
                 
-                NSThread.sleepForTimeInterval(1.0)
+                Thread.sleep(forTimeInterval: 1.0)
                 
                 // Do the maths.
                 
-                total += numberObj.integerValue
+                total += numberObj.intValue
             }
             
             let totalStr = String(format: "%ld", total)
-            if NSUserDefaults.standardUserDefaults().boolForKey("applyResultsFromThread") {
+            if UserDefaults.standard.bool(forKey: "applyResultsFromThread") {
                 self.formattedTotal = totalStr
                 self.recalculating = false
             } else {
-                dispatch_async(dispatch_get_main_queue()) {
+                DispatchQueue.main.async {
                     self.threadRecalculateDone(totalStr)
                 }
             }
@@ -454,8 +454,8 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     }
     
     // In threaded mode, called on the main thread to apply the results to the UI.
-    private func threadRecalculateDone(result: String) {
-        assert(NSThread.isMainThread())
+    private func threadRecalculateDone(_ result: String) {
+        assert(Thread.isMainThread)
         
         // The user interface is adjusted by a KVO observer on recalculating.
         
@@ -476,11 +476,11 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
                 
                 // Sleep for a while.  This makes it easiest to test various problematic cases.
                 
-                NSThread.sleepForTimeInterval(1.0)
+                Thread.sleep(forTimeInterval: 1.0)
                 
                 // Do the maths.
                 
-                total += numberObj.integerValue
+                total += numberObj.intValue
             }
             
             // The user interface is adjusted by a KVO observer on recalculating.
@@ -504,17 +504,17 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
                 
                 // Sleep for a while.  This makes it easiest to test various problematic cases.
                 
-                NSThread.sleepForTimeInterval(1.0)
+                Thread.sleep(forTimeInterval: 1.0)
                 
                 // Do the maths.
                 
-                total += numberObj.integerValue
+                total += numberObj.intValue
             }
             
             // Update the user interface on the main thread.
             
             let totalStr = String(format: "%ld", total)
-            dispatch_async(dispatch_get_main_queue()) {
+            DispatchQueue.main.async {
                 self.threadRecalculateDone(totalStr)
             }
         }
@@ -540,7 +540,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         
         self.inProgressAdder = AdderOperation(numbers: self.numbers)
         assert(self.inProgressAdder != nil)
-        if NSUserDefaults.standardUserDefaults().boolForKey("addFaster") {
+        if UserDefaults.standard.bool(forKey: "addFaster") {
             self.inProgressAdder!.interNumberDelay = 0.2
         }
         
@@ -555,7 +555,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         self.recalculating = true
     }
     
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if context == totalContext {
             
             // If the operation has finished, call -adderOperationDone: on the main thread to deal
@@ -564,18 +564,18 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             // can be running on any thread
             assert(keyPath == "isFinished")
             let op = object as! AdderOperation
-            assert(op.finished)
+            assert(op.isFinished)
             
             fputs(String(format: "%c %3ld finished\n", CharForCurrentThread(), op.sequenceNumber), stderr)
-            if NSUserDefaults.standardUserDefaults().boolForKey("applyResultsFromThread") {
+            if UserDefaults.standard.bool(forKey: "applyResultsFromThread") {
                 self.adderOperationDone(op)
             } else {
-                if NSUserDefaults.standardUserDefaults().boolForKey("allowStale") {
-                    dispatch_async(dispatch_get_main_queue()) {
+                if UserDefaults.standard.bool(forKey: "allowStale") {
+                    DispatchQueue.main.async {
                         self.adderOperationDoneWrong(op)
                     }
                 } else {
-                    dispatch_async(dispatch_get_main_queue()) {
+                    DispatchQueue.main.async {
                         self.adderOperationDone(op)
                     }
                 }
@@ -587,7 +587,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             // can be running on any thread
             assert(keyPath == "isExecuting")
             let op = object as! AdderOperation
-            if op.executing {
+            if op.isExecuting {
                 fputs(String(format: "%c %3ld executing\n", CharForCurrentThread(), op.sequenceNumber), stderr)
             } else {
                 fputs(String(format: "%c %3ld stopped\n", CharForCurrentThread(), op.sequenceNumber), stderr)
@@ -597,19 +597,19 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
             // If recalculating changes, reload the first section (kListAdderSectionIndexTotal)
             // which causes the activity indicator to come or go.
             
-            assert(NSThread.isMainThread())
+            assert(Thread.isMainThread)
             assert(keyPath == "recalculating")
-            assert(object === self)
-            if self.isViewLoaded() {
-                self.tableView.reloadRowsAtIndexPaths([NSIndexPath(forRow: 0, inSection: kListAdderSectionIndexTotal)], withRowAnimation: .None)
+            assert(object as AnyObject === self)
+            if self.isViewLoaded {
+                self.tableView.reloadRows(at: [IndexPath(row: 0, section: kListAdderSectionIndexTotal)], with: .none)
             }
         } else {
-            super.observeValueForKeyPath(keyPath, ofObject: object, change: change, context: context)
+            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
         }
     }
     
-    private func adderOperationDone(op: AdderOperation) {
-        assert(NSThread.isMainThread())
+    private func adderOperationDone(_ op: AdderOperation) {
+        assert(Thread.isMainThread)
         
         assert(self.recalculating)
         
@@ -625,7 +625,7 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         // of the latest add operation completing.
         
         if op == self.inProgressAdder {
-            assert(!op.cancelled)
+            assert(!op.isCancelled)
             
             // Commit the value to our model.
             
@@ -643,8 +643,8 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
         }
     }
     
-    private func adderOperationDoneWrong(op: AdderOperation) {
-        assert(NSThread.isMainThread())
+    private func adderOperationDoneWrong(_ op: AdderOperation) {
+        assert(Thread.isMainThread)
         
         // Because we're ignoring stale operations, the following assert will
         // trips.
@@ -689,12 +689,12 @@ NumberPickerControllerDelegate, OptionsControllerDelegate {
     @IBAction private func defaultsOrMinimumAction(_: AnyObject) {
         if self.numbers.count > 1 {
             self.numbers.removeAllObjects()
-            self.numbers.addObject(41)
+            self.numbers.add(41)
         } else {
-            self.numbers.replaceObjectsInRange(NSMakeRange(0, self.numbers.count), withObjectsFromArray: self.dynamicType.defaultNumbers() as [AnyObject])
+            self.numbers.replaceObjects(in: NSMakeRange(0, self.numbers.count), withObjectsFrom: type(of: self).defaultNumbers() as [AnyObject])
         }
         self.syncLeftBarButtonTitle()
-        if self.isViewLoaded() {
+        if self.isViewLoaded {
             self.tableView.reloadData()
         }
         self.recalculateTotal()

@@ -59,7 +59,7 @@ import UIKit
 protocol NumberPickerControllerDelegate: NSObjectProtocol {
     
     // number is nil on cancel
-    func numberPicker(controller: NumberPickerController, didChooseNumber number: NSNumber?)
+    func numberPicker(_ controller: NumberPickerController, didChooseNumber number: NSNumber?)
     
 }
 
@@ -78,7 +78,7 @@ class NumberCell: UITableViewCell {
 class NumberPickerController: UITableViewController {
     weak var delegate: NumberPickerControllerDelegate?
     
-    private func didChooseNumber(number: NSNumber?) {
+    private func didChooseNumber(_ number: NSNumber?) {
         
         // number may be nil
         
@@ -86,13 +86,13 @@ class NumberPickerController: UITableViewController {
         strongDelegate?.numberPicker(self, didChooseNumber: number)
     }
     
-    override func tableView(tv: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tv: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         assert(tv === self.tableView)
         
-        let cell = self.tableView.cellForRowAtIndexPath(indexPath) as! NumberCell
+        let cell = self.tableView.cellForRow(at: indexPath) as! NumberCell
         
-        self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        self.tableView.deselectRow(at: indexPath, animated: true)
         
         self.didChooseNumber(cell.number)
     }

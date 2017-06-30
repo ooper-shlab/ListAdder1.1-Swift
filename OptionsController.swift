@@ -58,8 +58,8 @@ import UIKit
 @objc(OptionsControllerDelegate)
 protocol OptionsControllerDelegate: NSObjectProtocol {
     
-    func didSaveOptions(controller: OptionsController)
-    func didCancelOptions(controller: OptionsController)
+    func didSaveOptions(_ controller: OptionsController)
+    func didCancelOptions(_ controller: OptionsController)
     
 }
 
@@ -86,37 +86,37 @@ class OptionsController: UITableViewController {
         
         super.viewDidLoad()
         
-        let defaults = NSUserDefaults.standardUserDefaults()
+        let defaults = UserDefaults.standard
         for cell in self.optionCells {
             
-            let optionEnabled = defaults.boolForKey(cell.optionKey)
+            let optionEnabled = defaults.bool(forKey: cell.optionKey)
             self.currentState[cell.optionKey] = optionEnabled
-            cell.accessoryType = optionEnabled ? .Checkmark : .None
+            cell.accessoryType = optionEnabled ? .checkmark : .none
         }
     }
     
-    override func tableView(tv: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tv: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         assert(tv === self.tableView)
         
-        let cell = self.tableView.cellForRowAtIndexPath(indexPath)! as! OptionCell
+        let cell = self.tableView.cellForRow(at: indexPath)! as! OptionCell
         
         let optionEnabled = !self.currentState[cell.optionKey]!
         self.currentState[cell.optionKey] = optionEnabled
         
-        cell.accessoryType = optionEnabled ? .Checkmark : .None
+        cell.accessoryType = optionEnabled ? .checkmark : .none
         
-        self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        self.tableView.deselectRow(at: indexPath, animated: true)
     }
     
     @IBAction func saveAction(_: AnyObject) {
         
         // Commit the options to the user defaults.
         
-        let defaults = NSUserDefaults.standardUserDefaults()
+        let defaults = UserDefaults.standard
         
         for (key, value) in self.currentState {
-            defaults.setObject(value, forKey: key)
+            defaults.set(value, forKey: key)
         }
         
         defaults.synchronize()

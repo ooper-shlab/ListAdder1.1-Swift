@@ -86,7 +86,7 @@ import Foundation
 */
 
 @objc(AdderOperation)
-class AdderOperation: NSOperation {
+class AdderOperation: Operation {
     
     // set up by the init method that can't be changed
     
@@ -95,7 +95,7 @@ class AdderOperation: NSOperation {
     
     // must be configured before the operation is started
     
-    var interNumberDelay: NSTimeInterval = 1.0
+    var interNumberDelay: TimeInterval = 1.0
     
     // only meaningful after the operation is finished
     
@@ -104,7 +104,7 @@ class AdderOperation: NSOperation {
     
     // only accessed by the operation thread
     
-    private var formatter: NSNumberFormatter!
+    private var formatter: NumberFormatter!
     
     init(numbers: NSArray) {
         // can be called on any thread
@@ -120,7 +120,7 @@ class AdderOperation: NSOperation {
         // passes us an NSMutableArray (which is type compatible with NSArray)
         // and can then mutate it behind our back.
         
-        if NSUserDefaults.standardUserDefaults().boolForKey("retainNotCopy") {
+        if UserDefaults.standard.bool(forKey: "retainNotCopy") {
             self.numbers = numbers
         } else {
             self.numbers = numbers.copy() as! NSArray
@@ -172,21 +172,21 @@ class AdderOperation: NSOperation {
         
         // This method is called by a thread that's set up for us by the NSOperationQueue.
         
-        assert(!NSThread.isMainThread())
+        assert(!Thread.isMainThread)
         
         // We latch interNumberDelay at this point so that, if the client changes
         // it after they've queued the operation (something they shouldn't be doing,
         // but hey, we're cautious), we always see a consistent value.
         
-        let localInterNumberDelay: NSTimeInterval = self.interNumberDelay
+        let localInterNumberDelay: TimeInterval = self.interNumberDelay
         
         // Set up the formatter.  This is a private property that's only accessed by
         // the operation thread, so we don't have to worry about synchronising access to it.
         
-        self.formatter = NSNumberFormatter()
+        self.formatter = NumberFormatter()
         assert(self.formatter != nil)
         
-        self.formatter.numberStyle = .DecimalStyle
+        self.formatter.numberStyle = .decimal
         self.formatter.usesGroupingSeparator = true
         
         // Do the heavy lifting (-:
@@ -196,18 +196,18 @@ class AdderOperation: NSOperation {
             
             // Check for cancellation.
             
-            if self.cancelled {
+            if self.isCancelled {
                 break
             }
             
             // Sleep for the inter-number delay.  This makes it easier to
             // test cancellation and so on.
             
-            NSThread.sleepForTimeInterval(localInterNumberDelay)
+            Thread.sleep(forTimeInterval: localInterNumberDelay)
             
             // Do the maths (but they said there'd be no maths!).
             
-            localTotal += number.integerValue
+            localTotal += number.intValue
         }
         
         // Set our output properties base on the value we calculated.  Our client
@@ -215,7 +215,7 @@ class AdderOperation: NSOperation {
         // we return from this method).
         
         self.total = localTotal
-        self.formattedTotal = self.formatter.stringFromNumber(localTotal)!
+        self.formattedTotal = self.formatter.string(from: localTotal as NSNumber)!
     }
     
     func main2() {
@@ -227,7 +227,7 @@ class AdderOperation: NSOperation {
         
         // This method is called by a thread that's set up for us by the NSOperationQueue.
         
-        assert(!NSThread.isMainThread())
+        assert(!Thread.isMainThread)
         
         // Do the heavy lifting (-:
         
@@ -236,25 +236,25 @@ class AdderOperation: NSOperation {
             
             // Check for cancellation.
             
-            if self.cancelled {
+            if self.isCancelled {
                 break
             }
             
             // Sleep for a second.  This makes it easier to test cancellation
             // and so on.
             
-            NSThread.sleepForTimeInterval(1.0)
+            Thread.sleep(forTimeInterval: 1.0)
             
             // Do the maths (but they said there'd be no maths!).
             
-            total += numberObj.integerValue
+            total += numberObj.intValue
         }
         
         // Set our output properties base on the value we calculated.  Our client
         // shouldn't look at these until -isFinished goes to YES (which happens when
         // we return from this method).
         
-        self.formattedTotal = self.formatter.stringFromNumber(total)!
+        self.formattedTotal = self.formatter.string(from: total as NSNumber)!
     }
     
 }
